@@ -88,12 +88,17 @@ The normalizers accept flexible CSV headers such as:
 
 ## Deployment note
 
-The assignment requires a deployed app. This repository is ready to deploy, but the live URL should be added here after deploying to Render, Railway, Fly, or a similar host.
+The app is deployed on Vercel. The live URL:
 
-Suggested production changes before sharing a public URL:
+```text
+https://breathe-esg-assignment-dun.vercel.app
+```
 
-- Use PostgreSQL instead of SQLite.
-- Restore authenticated API permissions.
-- Move secrets and allowed hosts to environment variables.
-- Add a deployed frontend environment variable for `VITE_API_BASE_URL`.
-- Store uploaded files in object storage if uploads need to be retained.
+The Django API and React frontend are served from the same domain:
+- API routes (`/tenants/`, `/data-sources/`, `/raw-records/`, `/emission-records/`) → Django serverless function
+- All other routes → React SPA
+
+For a production-grade deployment:
+- Set `DATABASE_URL` environment variable in Vercel to a PostgreSQL connection string (e.g. Neon, Supabase, or Railway). Without it the app uses SQLite in `/tmp` which resets on each cold start.
+- Set `DJANGO_SECRET_KEY` to a strong random value.
+- Set `DJANGO_ALLOWED_HOSTS` to your Vercel domain if it changes.
