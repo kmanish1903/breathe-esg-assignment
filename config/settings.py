@@ -1,11 +1,29 @@
+import os
 from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "dev-only-breathe-esg-secret-key"
-DEBUG = True
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-only-breathe-esg-secret-key")
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
+
+
+def env_list(name, default):
+    value = os.environ.get(name)
+    if not value:
+        return default
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+ALLOWED_HOSTS = env_list(
+    "DJANGO_ALLOWED_HOSTS",
+    [
+        "127.0.0.1",
+        "localhost",
+        ".vercel.app",
+        "breathe-esg-assignment-dun.vercel.app",
+    ],
+)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -67,10 +85,30 @@ USE_TZ = True
 STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5173",
-    "http://localhost:5173",
-]
+CORS_ALLOWED_ORIGINS = env_list(
+    "CORS_ALLOWED_ORIGINS",
+    [
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "https://breathe-esg-assignment-dun.vercel.app",
+    ],
+)
+CORS_ALLOWED_ORIGIN_REGEXES = env_list(
+    "CORS_ALLOWED_ORIGIN_REGEXES",
+    [
+        r"^https://.*\.vercel\.app$",
+    ],
+)
+
+CSRF_TRUSTED_ORIGINS = env_list(
+    "CSRF_TRUSTED_ORIGINS",
+    [
+        "https://*.vercel.app",
+        "https://breathe-esg-assignment-dun.vercel.app",
+    ],
+)
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
